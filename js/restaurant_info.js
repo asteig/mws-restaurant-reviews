@@ -22,7 +22,7 @@ initMap = () => {
         scrollWheelZoom: false
       });
       L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.jpg70?access_token={mapboxToken}', {
-        mapboxToken: '<your MAPBOX API KEY HERE>',
+        mapboxToken: 'pk.eyJ1IjoibWFwYm94ZGV2MiIsImEiOiJjam0wd2t1dm0yOWhiM3FsaThqdHBnMmVpIn0.Ggnc2utsx58Kvu-P5O8buQ',
         maxZoom: 18,
         attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, ' +
           '<a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' +
@@ -89,6 +89,12 @@ fillRestaurantHTML = (restaurant = self.restaurant) => {
   const image = document.getElementById('restaurant-img');
   image.className = 'restaurant-img'
   image.src = DBHelper.imageUrlForRestaurant(restaurant);
+  image.alt = 'Restaurant: ' + restaurant.name;
+
+  imageName = image.src.split("/").pop().replace('.jpg', '');
+
+  image.src = `/img/${imageName}-800_lg.jpg`;
+  image.srcset = `/img/${imageName}-320_sm.jpg 1x, /img/${imageName}-560_md.jpg 2x`;
 
   const cuisine = document.getElementById('restaurant-cuisine');
   cuisine.innerHTML = restaurant.cuisine_type;
@@ -106,6 +112,22 @@ fillRestaurantHTML = (restaurant = self.restaurant) => {
  */
 fillRestaurantHoursHTML = (operatingHours = self.restaurant.operating_hours) => {
   const hours = document.getElementById('restaurant-hours');
+
+  const row = document.createElement('tr');
+  
+  const day_header = document.createElement('th');
+  const time_header = document.createElement('th');
+
+  day_header.id = 'day-heading';
+  time_header.id = 'time-heading';
+
+  time_header.innerHtml = 'Hours';
+
+  row.appendChild(day_header);
+  row.appendChild(time_header);
+
+  hours.append(row);
+
   for (let key in operatingHours) {
     const row = document.createElement('tr');
 
@@ -157,7 +179,9 @@ createReviewHTML = (review) => {
   li.appendChild(date);
 
   const rating = document.createElement('p');
+  rating.className = `rating-${review.rating}-starts`;
   rating.innerHTML = `Rating: ${review.rating}`;
+
   li.appendChild(rating);
 
   const comments = document.createElement('p');
@@ -174,6 +198,7 @@ fillBreadcrumb = (restaurant=self.restaurant) => {
   const breadcrumb = document.getElementById('breadcrumb');
   const li = document.createElement('li');
   li.innerHTML = restaurant.name;
+  li.setAttribute('aria-current', 'page');
   breadcrumb.appendChild(li);
 }
 
