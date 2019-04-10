@@ -29,7 +29,7 @@
   <header>
     <!-- Beginning nav -->
     <nav>
-      <h2><a href="/">Restaurant Reviews</a></h2>
+      <h1><a href="/">Restaurant Reviews</a></h1>
     </nav>
     <!-- Beginning breadcrumb -->
     <nav>
@@ -48,8 +48,12 @@
     <!-- End map -->
     <!-- Beginning restaurant -->
     <section id="restaurant-container">
-      <img id="restaurant-img">
+      <div id="restaurant-img-container">
+        <img id="restaurant-img">
+        <a role="button" aria-pressed="false" id="restaurant-favorite" onclick="toggleFavorite()">♥️</a>
+      </div>
       <div class="restaurant-info">
+        <div class="restaurant-photo">
         <h2 id="restaurant-name"></h2>
         <p id="restaurant-cuisine"></p>
         <p id="restaurant-address"></p>
@@ -70,13 +74,13 @@
       <ul id="reviews-list"></ul>
 
       <!-- Add Review -->
-      <!-- 
-      <div role="form" id="reviews-submit">
+       
+      <form onsubmit="return handleSubmitReview()" id="reviews-submit">
           <legend id="contact">Add Review</legend>
 
           <div>
             <label for="name">Name</label><br>
-            <input id="name" type="text" size="25">
+            <input id="name" type="text" size="25" value="">
           </div>
 
 
@@ -105,13 +109,13 @@
           </div>
 
           <div>
-            <label for="review">Review</label><br>
-            <textarea id="review" rows="10" cols="50"></textarea>
+            <label for="comments">Comments</label><br>
+            <textarea id="comments" rows="10" cols="50"></textarea>
           </div>
 
           <input type="submit" value="Add Review">
-        </div>
-      -->
+        </form>
+      
     </section>
     <!-- End reviews -->
   </main>

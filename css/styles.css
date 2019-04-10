@@ -215,10 +215,6 @@ nav h1 a {
   width: 100%;
 }
 
-.restaurant-info {
-  display: inline-block;
-}
-
 #restaurant-name {
   color: #252831;
   font-family: Arial,sans-serif;
@@ -302,6 +298,43 @@ nav h1 a {
 #restaurant-hours td {
   color: #666;
   padding: 0 4px;
+}
+
+#restaurant-img-container {
+  position: relative;
+}
+
+#restaurant-favorite {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  padding: 5px;
+  font-size: 200%;
+  border-radius: 50%;
+  background: #252831;
+  justify-content: center;
+  align-items: center;
+  border-radius: 100%;
+  text-align: center;
+  display: flex;
+  width: 50px;
+  height: 50px;
+}
+
+#restaurant-favorite[aria-pressed=true] {
+  color: #ff0000;
+}
+
+#restaurant-favorite[aria-pressed=true]:hover {
+  color: #fff;
+}
+
+#restaurant-favorite[aria-pressed=false] {
+  color: #fff;
+}
+
+#restaurant-favorite[aria-pressed=false]:hover {
+  color: #ff0000;
 }
 
 

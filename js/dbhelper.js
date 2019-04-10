@@ -5,6 +5,8 @@ const dbPromise = {
       case 0:
         upgradeDb.createObjectStore('restaurants', { keyPath: 'id' });
         upgradeDb.createObjectStore('reviews', { keyPath: 'id' });
+        upgradeDb.createObjectStore('offlineReviews', { autoIncrement: 'true' });
+        upgradeDb.createObjectStore('offlineFavorites', { keyPath: 'restaurant_id' });
     }
   }),
 
@@ -42,8 +44,72 @@ const dbPromise = {
         });
       })).then(function () {
         return store.complete;
+      }).catch(function(error) {
+        console.log('Couldnt add the review :(');
+        console.error(error);
       });
     });
+  },
+
+  putOfflineReview(review) {
+
+    //try to push the data to the server
+    const url = `${DBHelper.DATABASE_URL}/reviews/`;
+    const POST = {
+      method: 'POST',
+      body: JSON.stringify(review)
+    };
+
+    return fetch(url, POST).then(response => {
+      if (!response.ok) return Promise.reject("We couldn't post review to server.");
+      return response.json();
+    }).then(newNetworkReview => {
+      console.log('Post returned....');
+      console.log('review_id', newNetworkReview.id);
+
+      console.log('Add to idb...');
+      dbPromise.putReviews(newNetworkReview);
+
+    }).catch(function() {
+      console.log('Review couldnt be added via post. Add to offline reviews.');
+      
+      dbPromise.db.then(db => {
+        const store = db.transaction('offlineReviews', 'readwrite').objectStore('offlineReviews');
+        store.put(review);
+      });
+
+    });
+
+  },
+
+  /**
+   * Try to post new favorite to server. Fallback to idb if POST fails.
+   */
+  putOfflineFavorite(restaurant_id, isFavorite) {
+
+    //try to push the data to the server
+    const url = `${DBHelper.DATABASE_URL}/restaurants/${restaurant_id}/?is_favorite=${isFavorite}`;
+    const POST = {
+      method: 'POST',
+      body: ''
+    };
+
+    return fetch(url, POST).then(response => {
+      if (!response.ok) return Promise.reject("We couldn't post favorite to server");
+      return response.json();
+    }).catch(function() {
+      
+      const favorite = {};
+      favorite['restaurant_id'] = restaurant_id;
+      favorite['isFavorite'] = isFavorite;
+
+      dbPromise.db.then(db => {
+        const store = db.transaction('offlineFavorites', 'readwrite').objectStore('offlineFavorites');
+        return store.put(favorite);
+      });
+
+    });
+
   },
 
   /**
@@ -53,9 +119,95 @@ const dbPromise = {
   getRestaurants(id = undefined) {
     return this.db.then(db => {
       const store = db.transaction('restaurants').objectStore('restaurants');
-      if (id) return store.get(Number(id));
+      if (id) {
+        restaurant
+        return store.get(Number(id));
+      }
       return store.getAll();
     });
+  },
+
+
+  /**
+   * Get offline reviews
+   */
+  getOfflineReviews() {
+    return this.db.then(db => {
+      const store = db.transaction('offlineReviews').objectStore('offlineReviews');
+      return store.getAll();
+    });
+  },
+
+  /**
+   * Get offline favorites
+   */
+  getOfflineFavorites() {
+    return this.db.then(db => {
+      const store = db.transaction('offlineFavorites').objectStore('offlineFavorites');
+      return store.getAll();
+    });
+  },
+
+  syncOfflineReview(review) {
+
+    //try to push the data to the server
+    const url = `${DBHelper.DATABASE_URL}/reviews/`;
+    const POST = {
+      method: 'POST',
+      body: JSON.stringify(review)
+    };
+
+    return fetch(url, POST).then(response => {
+      if (!response.ok) return Promise.reject("We couldn't post review to server.");
+      console.log('Offline review added to the server. :)');
+      return response.json();
+    }).catch(function() {
+      console.log('Review couldnt be added via post. Already in offlineReviews.');
+    });
+
+  },
+
+  syncOfflineFavorite(offlineFavorite) {
+
+    console.log(offlineFavorite);
+
+    const restaurant_id = offlineFavorite.restaurant_id;
+    const isFavorite = offlineFavorite.isFavorite;
+
+    //try to push the data to the server
+    const url = `${DBHelper.DATABASE_URL}/restaurants/${restaurant_id}/?is_favorite=${isFavorite}`;
+    const POST = {
+      method: 'POST',
+      body: ''
+    };
+
+    return fetch(url, POST).then(response => {
+      if (!response.ok) return Promise.reject('We couldn\'t post favorite to server.');
+      console.log('Offline favorite synced with server.');
+
+      dbPromise.clearOfflineFavorites().then(function() {
+        console.log('Cleared offlineFavorites');
+      });
+
+      return response.json();
+    }).catch(function() {
+      console.log('Favorite couldn\'t be synced. Leave is favorites.');
+    });
+
+  },
+
+  clearOfflineReviews() {
+    return this.db.then(db => {
+      const store = db.transaction('offlineReviews', 'readwrite').objectStore('offlineReviews');
+      return store.clear();
+    });  
+  },
+
+  clearOfflineFavorites() {
+    return this.db.then(db => {
+      const store = db.transaction('offlineFavorites', 'readwrite').objectStore('offlineFavorites');
+      return store.clear();
+    });  
   },
 
 };
@@ -148,9 +300,7 @@ class DBHelper {
       dbPromise.putReviews(fetchedReviews);
       return callback(null, fetchedReviews);
     }).catch(networkError => {
-      console.log('Network error. Try idb.');
       dbPromise.getRestaurants(id).then(idbReviews => {
-        console.log('checked idb then...');
         if (!idbReviews) return callback("Reviews not found in idb either", null);
         return callback(null, idbReviews);
       });

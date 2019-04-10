@@ -78,7 +78,6 @@ fetchRestaurantFromURL = (callback) => {
     });
 
     DBHelper.fetchReviewsByRestaurantId(id, (error, reviews) => {
-      console.log(reviews);
       self.restaurant.reviews = [reviews];
       if(reviews.length > 0) {
         fillReviewsHTML(reviews);
@@ -88,11 +87,29 @@ fetchRestaurantFromURL = (callback) => {
   }
 }
 
+syncOfflineReviews = () => {
+  dbPromise.getOfflineReviews().then(function(reviews) {
+    reviews.forEach(function(review) {
+      dbPromise.syncOfflineReview(review).then(function() {
+        dbPromise.clearOfflineReviews();
+      });
+    });
+  });
+
+  dbPromise.getOfflineFavorites().then(function(favorites) {
+    favorites.forEach(function(favorite) {
+      dbPromise.syncOfflineFavorite(favorite);
+    });
+  });
+
+}
+
 
 /**
  * Create restaurant HTML and add it to the webpage
  */
 fillRestaurantHTML = (restaurant = self.restaurant) => {
+
   const name = document.getElementById('restaurant-name');
   name.innerHTML = restaurant.name;
 
@@ -116,8 +133,6 @@ fillRestaurantHTML = (restaurant = self.restaurant) => {
   if (restaurant.operating_hours) {
     fillRestaurantHoursHTML();
   }
-  // fill reviews
-  fillReviewsHTML();
 }
 
 /**
@@ -216,6 +231,43 @@ fillBreadcrumb = (restaurant=self.restaurant) => {
   breadcrumb.appendChild(li);
 }
 
+handleSubmitReview = () => {
+
+  const review = {};
+  review['name'] = document.getElementById('name').value;
+  review['rating'] = document.querySelector('input[name = "rating"]:checked').value;
+  review['comments'] = document.getElementById('comments').value;
+  review['restaurant_id'] = getParameterByName('id');
+
+  //add review to dom
+  const reviewList = document.getElementById('reviews-list');
+  const reviewHTML = createReviewHTML(review);
+  reviewList.appendChild(reviewHTML);
+  
+  // clear form
+  document.getElementById('name').value = '';
+  document.getElementById('comments').value = '';
+
+
+  //add review to idb
+  dbPromise.putOfflineReview(review);
+
+  return false;
+}
+
+/**
+ * Toggle favorite button
+ */
+toggleFavorite = () => {
+  const button = document.getElementById('restaurant-favorite');
+  const restaurant_id = getParameterByName('id');
+  const isFavorite = (button.getAttribute('aria-pressed') === 'true');
+
+  button.setAttribute('aria-pressed', !isFavorite);
+
+  dbPromise.putOfflineFavorite(restaurant_id, !isFavorite);
+}
+
 /**
  * Get a parameter by name from page URL.
  */
@@ -231,3 +283,5 @@ getParameterByName = (name, url) => {
     return '';
   return decodeURIComponent(results[2].replace(/\+/g, ' '));
 }
+
+syncOfflineReviews();
