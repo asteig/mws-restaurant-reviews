@@ -43,7 +43,7 @@ article, aside, canvas, details, figcaption, figure, footer, header, hgroup, men
   background-color: yellow;
 }
 
-.skip-link {
+.skip-link, .aria-hide {
   display: none;
 }
 

@@ -15,7 +15,10 @@ initMap = () => {
   fetchRestaurantFromURL((error, restaurant) => {
     if (error) { // Got an error!
       console.error(error);
-    } else {      
+    } else {
+      if (!restaurant) {
+        return;
+      }    
       self.newMap = L.map('map', {
         center: [restaurant.latlng.lat, restaurant.latlng.lng],
         zoom: 16,
@@ -73,8 +76,18 @@ fetchRestaurantFromURL = (callback) => {
       fillRestaurantHTML();
       callback(null, restaurant)
     });
+
+    DBHelper.fetchReviewsByRestaurantId(id, (error, reviews) => {
+      console.log(reviews);
+      self.restaurant.reviews = [reviews];
+      if(reviews.length > 0) {
+        fillReviewsHTML(reviews);
+      }
+    });
+
   }
 }
+
 
 /**
  * Create restaurant HTML and add it to the webpage
@@ -169,14 +182,15 @@ fillReviewsHTML = (reviews = self.restaurant.reviews) => {
  * Create review HTML and add it to the webpage.
  */
 createReviewHTML = (review) => {
+
   const li = document.createElement('li');
   const name = document.createElement('p');
   name.innerHTML = review.name;
   li.appendChild(name);
 
   const date = document.createElement('p');
-  date.innerHTML = review.date;
-  li.appendChild(date);
+  date.innerHTML = review.createdAt;
+  //li.appendChild(date);
 
   const rating = document.createElement('p');
   rating.className = `rating-${review.rating}-starts`;
