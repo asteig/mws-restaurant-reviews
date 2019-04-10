@@ -2,32 +2,61 @@
 ---
 #### _Three Stage Course Material Project - Restaurant Reviews_
 
-## Project Overview: Stage 1
+# Restaurant Reviews 
+Part of Udacity's Mobile Web Specialist Nanodegree program. Completed in three stages, I refactored a starter website to include offline capabilities, paying special attention to responsiveness and accessibility. To complete the project, I had to learn about ARIA, ES6, IndexedDB, and service workers, as well as how to work closely with the browser's dev tools. 
 
-For the **Restaurant Reviews** projects, you will incrementally convert a static webpage to a mobile-ready web application. In **Stage One**, you will take a static design that lacks accessibility and convert the design to be responsive on different sized displays and accessible for screen reader use. You will also add a service worker to begin the process of creating a seamless offline experience for your users.
+## Stage 1
+**Responsive Design**
++ All content is responsive and displays on a range of display sizes.
++ Content makes use of available screen real estate and displays correctly at all screen sizes.
++ An image's associated title and text renders next to the image in all viewport sizes.
++ Images in the site are sized appropriate to the viewport and do not crowd or overlap other elements in the browser, regardless of viewport size.
++ On the main page, restaurants and images are displayed in all viewports. The detail page includes a map, hours and reviews in all viewports.
 
-### Specification
+**Accessibility**
++ All content-related images include appropriate alternate text that clearly describes the content of the image.
++ Focus is appropriately managed allowing users to noticeably tab through each of the important elements of the page. Modal or interstitial windows appropriately lock focus.
++ Elements on the page use the appropriate semantic elements. For those elements in which a semantic element is not available, appropriate ARIA roles are defined.
 
-You have been provided the code for a restaurant reviews website. The code has a lot of issues. It’s barely usable on a desktop browser, much less a mobile device. It also doesn’t include any standard accessibility features, and it doesn’t work offline at all. Your job is to update the code to resolve these issues while still maintaining the included functionality.
+**Offline Availability**
++ When available in the browser, the site uses a service worker to cache responses to requests for site assets. 
++ Visited pages are rendered when there is no network access.
 
-### Project Rubric
+**See Stage 1 commit:** [ffab9cb](https://github.com/asteig/mws-restaurant-reviews/commit/ffab9cb198cd4c2bbbecaca1f152c37019399722)
 
-Your project will be evaluated by a Udacity code reviewer according to the [Restaurant Reviews project rubric](https://review.udacity.com/#!/rubrics/1090/view). Please review for detailed project requirements. The rubric should be a resource you refer to periodically to make sure your project meets specifications.
+## Stage 2
 
-### What do I do from here?
+**Application Data and Offline Use**
++ The client application should pull restaurant data from the development server, parse the JSON response, and use the information to render the appropriate sections of the application UI.
++ The client application works offline. JSON responses are cached using the IndexedDB API. 
++ Any data previously accessed while connected is reachable while offline.
 
-1. In this folder, start up a simple HTTP server to serve up the site files on your local computer. Python has some simple tools to do this, and you don't even need to know Python. For most people, it's already installed on your computer.
+**Responsive Design and Accessibility**
++ The application maintains a responsive design on mobile, tablet and desktop viewports.
++ The application retains accessibility features from the Stage 1 project. 
++ Images have alternate text, the application uses appropriate focus management for navigation, and semantic elements and ARIA attributes are used correctly.
 
-    * In a terminal, check the version of Python you have: `python -V`. If you have Python 2.x, spin up the server with `python -m SimpleHTTPServer 8000` (or some other port, if port 8000 is already in use.) For Python 3.x, you can use `python3 -m http.server 8000`. If you don't have Python installed, navigate to Python's [website](https://www.python.org/) to download and install the software.
-   * Note -  For Windows systems, Python 3.x is installed as `python` by default. To start a Python 3.x server, you can simply enter `python -m http.server 8000`.
-2. With your server running, visit the site: `http://localhost:8000`, and look around for a bit to see what the current experience looks like.
-3. Explore the provided code, and start making a plan to implement the required features in three areas: responsive design, accessibility and offline use.
-4. Write code to implement the updates to get this site on its way to being a mobile-ready website.
+**Performance**
+Lighthouse targets for each category exceed:
+  + Progressive Web App: >90
+  + Performance: >70
+  + Accessibility: >90
 
-## Leaflet.js and Mapbox:
+**See Stage 2 commit:** [fc700cf](https://github.com/asteig/mws-restaurant-reviews/commit/fc700cf780e83433c65a27c669fff2796a0116ad)
 
-This repository uses [leafletjs](https://leafletjs.com/) with [Mapbox](https://www.mapbox.com/). You need to replace `<your MAPBOX API KEY HERE>` with a token from [Mapbox](https://www.mapbox.com/). Mapbox is free to use, and does not require any payment information.
+## Stage 3
+**User Interface**
++ Users are able to mark a restaurant as a favorite, this toggle is visible in the application. 
++ A form is added to allow users to add their own reviews for a restaurant. 
++ Form submission works properly and adds a new review to the database.
 
-### Note about ES6
+**Offline Use**
++ The client application works offline. 
++ JSON responses are cached using the IndexedDB API. 
++ Any data previously accessed while connected is reachable while offline. 
++ User is able to add a review to a restaurant while offline and the review is sent to the server when connectivity is re-established.
 
-Most of the code in this project has been written to the ES6 JavaScript specification for compatibility with modern web browsers and future-proofing JavaScript code. As much as possible, try to maintain use of ES6 in any additional JavaScript you write.
+**See commit:** [c440139](https://github.com/asteig/mws-restaurant-reviews/commit/c440139eddc1ce1b4776597748541a6d9e88b7f6)
+
+
+ 
